@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McDononalds Quick Order</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f4f4f4; text-align: center; }
+        .header { background: #db0007; color: #ffbc0d; padding: 20px; font-size: 2em; font-weight: bold; }
+        .menu-container { display: flex; justify-content: center; gap: 20px; padding: 40px; flex-wrap: wrap; }
+        .card { background: white; border-radius: 15px; padding: 20px; width: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; border-radius: 10px; }
+        .sold-out { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .status { color: #db0007; font-weight: bold; margin-top: 10px; }
+        button { background: #ffbc0d; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #e5a700; }
+        .timer { font-size: 0.8em; color: #666; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="header">McDONONALDS</div>
+<p>Fresh food, fast. Page auto-refreshes every 60 seconds.</p>
+
+<div class="menu-container" id="menu">
+    <div class="card" id="item-burger">
+        <img src="https://placehold.co/200x150?text=Big+Mick" alt="Burger">
+        <h3>Big Mick</h3>
+        <p>Orders: <span id="count-burger">0</span>/50</p>
+        <button onclick="order('burger')">Add to Order</button>
+        <div class="status" id="status-burger"></div>
+    </div>
+
+    <div class="card" id="item-fries">
+        <img src="https://placehold.co/200x150?text=Salty+Fries" alt="Fries">
+        <h3>Salty Fries</h3>
+        <p>Orders: <span id="count-fries">0</span>/50</p>
+        <button onclick="order('fries')">Add to Order</button>
+        <div class="status" id="status-fries"></div>
+    </div>
+</div>
+
+<div class="timer">Next refresh in: <span id="seconds">60</span>s</div>
+
+<script>
+    // Initialize or load order counts
+    let orders = JSON.parse(localStorage.getItem('foodOrders')) || { burger: 0, fries: 0 };
+    const limit = 50;
+
+    function updateUI() {
+        for (let item in orders) {
+            const countEl = document.getElementById(`count-${item}`);
+            const cardEl = document.getElementById(`item-${item}`);
+            const statusEl = document.getElementById(`status-${item}`);
+            
+            countEl.innerText = orders[item];
+
+            if (orders[item] >= limit) {
+                cardEl.classList.add('sold-out');
+                statusEl.innerText = "SOLD OUT";
+            }
+        }
+    }
+
+    function order(item) {
+        if (orders[item] < limit) {
+            orders[item]++;
+            localStorage.setItem('foodOrders', JSON.stringify(orders));
+            updateUI();
+        }
+    }
+
+    // Auto-refresh logic (1 minute)
+    let timeLeft = 60;
+    setInterval(() => {
+        timeLeft--;
+        document.getElementById('seconds').innerText = timeLeft;
+        if (timeLeft <= 0) {
+            location.reload(); // Refreshes the page
+        }
+    }, 1000);
+
+    // Initial UI load
+    updateUI();
+</script>
+
+</body>
+</html>
